@@ -152,7 +152,7 @@ def index():
     # Show original image, clear processed
             processed_image = UPLOAD_FILENAME  # 'original.png'
             print("Processed image being passed to template:", processed_image)
-            return render_template('index1.html',
+            return render_template('index.html',
                                 original_image=original_image,  # "original.png"
                                 processed_image=processed_image,
                                 last_processed_image=None,
