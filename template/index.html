@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Glitch Art Filters</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <style>
+        /* Background gradient with subtle animated shimmer */
+        body {
+          font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+          margin: 0;
+          background: linear-gradient(135deg, #0B0C10, #1F2833);
+          color: #C5C6C7;
+          padding: 20px;
+          background-size: 200% 200%;
+          animation: shimmer 15s ease-in-out infinite;
+        }
+      
+        @keyframes shimmer {
+          0% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+          100% { background-position: 0% 50%; }
+        }
+      
+        .container {
+          max-width: 900px;
+          margin: auto;
+          background: rgba(11, 12, 16, 0.85);
+          backdrop-filter: blur(10px);
+          padding: 25px;
+          border-radius: 15px;
+          box-shadow: 0 8px 30px rgba(102, 252, 241, 0.3);
+        }
+      
+        h1 {
+          text-align: center;
+          color: #66FCF1;
+          text-shadow: 0 0 8px #45A29E;
+          margin-bottom: 30px;
+        }
+      
+        form {
+          margin-top: 20px;
+        }
+      
+        label {
+          font-weight: 600;
+          margin-top: 15px;
+          display: block;
+          color: #C5C6C7;
+        }
+      
+        input[type="file"],
+        input[type="number"],
+        select {
+          width: 100%;
+          padding: 10px;
+          margin-top: 5px;
+          background: rgba(31, 40, 51, 0.6);
+          color: #C5C6C7;
+          border: 2px solid #45A29E;
+          border-radius: 8px;
+          font-size: 15px;
+          transition: border-color 0.3s ease;
+        }
+      
+        input[type="file"]:focus,
+        input[type="number"]:focus,
+        select:focus {
+          border-color: #66FCF1;
+          outline: none;
+        }
+      
+        button {
+          margin-top: 25px;
+          background: linear-gradient(to right, #45A29E, #66FCF1);
+          color: #0B0C10;
+          padding: 14px 28px;
+          font-size: 16px;
+          border: none;
+          border-radius: 8px;
+          cursor: pointer;
+          transition: transform 0.2s ease, box-shadow 0.2s;
+          box-shadow: 0 4px 15px rgba(102, 252, 241, 0.6);
+        }
+      
+        button:hover {
+          transform: scale(1.05);
+          box-shadow: 0 6px 20px rgba(102, 252, 241, 0.9);
+        }
+      
+        .hidden {
+          display: none;
+        }
+        .images {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 30px;
+          margin-top: 40px;
+          justify-content: center;
+        }
+        h3{
+            text-align: center;
+        }
+      
+        .images div {
+          flex: 1;
+          min-width: 280px;
+          text-align: center;
+        }
+      
+        img {
+          width: 100%;
+          max-width: 350px;
+          border-radius: 10px;
+          border: 3px solid #45A29E;
+          box-shadow: 0 4px 12px rgba(70, 162, 158, 0.5);
+        }
+      
+        .error {
+          color: #FF6B6B;
+          font-weight: bold;
+          text-align: center;
+        }
+      
+        @media (max-width: 600px) {
+          .images {
+            flex-direction: column;
+          }
+        }
+      </style>
+      
+    
+</head>
+<body>
+    <div class="container">
+        <h1>✨ Glitch Art Filters</h1>
+
+        {% if error %}
+        <p class="error">{{ error }}</p>
+        {% endif %}
+        <h3>Processed Image</h3>
+        <div class="images">
+            {% if processed_image %}
+                {% if processed_image.strip() == 'original.png' %}
+                    <img src="{{ url_for('static', filename='uploaded/' + processed_image) }}" alt="Reset Image">
+                {% else %}
+                    <img src="{{ url_for('static', filename='output/' + processed_image) }}" alt="Processed Image">
+                {% endif %}
+            {% endif %}
+        </div>
+
+        <form method="post" enctype="multipart/form-data" id="filterForm">
+            <label>Upload Image:
+                <input type="file" name="image1" id="imageInput"/>
+            </label>
+
+            <label>Select Operation:
+                <select name="operations" id="operationSelect">
+                    <option value="" selected>Select option</option>
+                    <option value="quantization">Quantization</option>
+                    <option value="rgb_shift">RGB Shift</option>
+                    <option value="rgb_rotate">RGB Rotate</option>
+                    <option value="rotate_angle">Rotate Image</option>
+                    <option value="pixel_sort_edge">Pixel Sort Edge Detection</option>
+                    <option value="pixel_sort_gray">Pixel Sort by Grayscale</option>
+                    <option value="posterize">Posterize</option>
+                    <option value="zoom">Zoom</option>
+                    <option value="shear">Shear</option>
+                    <option value="recovery">Recovery Last Image</option>
+                    <option value="reset">Reset (Revert to Original)</option>
+                </select>
+            </label>
+
+            <!-- Conditional Inputs -->
+            <div id="bitDepthDiv" class="hidden">
+                <label>Bit Depth (1–8):
+                    <input type="number" name="bit_depth" min="1" max="8" value="2" />
+                </label>
+            </div>
+
+            <div id="angleDiv" class="hidden">
+                <label>Rotation Angle (°):
+                    <input type="number" name="angle" step="0.1" value="0" />
+                </label>
+            </div>
+
+            <div id="zoomDiv" class="hidden">
+                <label>Zoom Factor (0.5–3.0):
+                    <input type="number" name="zoom_factor" step="0.1" value="1" min="0.1" max="10" />
+                </label>
+            </div>
+
+            <div id="orientationDiv" class="hidden">
+                <label>Sort Orientation:
+                    <select name="orientation">
+                        <option value="horizontal">Horizontal</option>
+                        <option value="vertical">Vertical</option>
+                    </select>
+                </label>
+            </div>
+
+            <div id="shearDiv" class="hidden">
+                <label>Shear X (-1.0 to 1.0):
+                    <input type="number" name="shear_x" step="0.01" value="0" min="-1" max="1" />
+                </label>
+                <label>Shear Y (-1.0 to 1.0):
+                    <input type="number" name="shear_y" step="0.01" value="0" min="-1" max="1" />
+                </label>
+            </div>
+
+            <input type="hidden" name="original_image" value="original.png" />
+            <input type="hidden" name="last_processed_image" value="{{ processed_image or '' }}" />
+            <input type="hidden" name="operations" id="operationHidden" value="" />
+
+            <button type="button" id="applyButton">Apply Filter</button>
+        </form>
+    </div>
+
+    <script>
+        const opSelect = document.getElementById('operationSelect');
+        const hiddenInput = document.getElementById('operationHidden');
+        const form = document.getElementById('filterForm');
+
+        opSelect.addEventListener('change', function () {
+            const op = this.value;
+            document.getElementById('bitDepthDiv').classList.add('hidden');
+            document.getElementById('angleDiv').classList.add('hidden');
+            document.getElementById('zoomDiv').classList.add('hidden');
+            document.getElementById('shearDiv').classList.add('hidden');
+            document.getElementById('orientationDiv').classList.add('hidden');
+
+            if (op === 'quantization' || op === 'posterize') {
+                document.getElementById('bitDepthDiv').classList.remove('hidden');
+            } else if (op === 'rotate_angle') {
+                document.getElementById('angleDiv').classList.remove('hidden');
+            } else if (op === 'zoom') {
+                document.getElementById('zoomDiv').classList.remove('hidden');
+            } else if (op === 'shear') {
+                document.getElementById('shearDiv').classList.remove('hidden');
+            } else if (op === 'pixel_sort_edge' || op === 'pixel_sort_gray') {
+                document.getElementById('orientationDiv').classList.remove('hidden');
+            }
+        });
+
+        document.getElementById('applyButton').addEventListener('click', function () {
+            const selectedOp = opSelect.value;
+            if (selectedOp) {
+                hiddenInput.value = selectedOp;
+                form.submit();
+            } else {
+                alert("Please select an operation before applying.");
+            }
+        });
+    </script>
+</body>
+</html>
