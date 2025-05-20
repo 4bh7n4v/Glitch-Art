@@ -1,13 +1,20 @@
 import cv2
 import numpy as np
 
+def StaticNoise(img, intensity):
+    noise = np.random.randint(0, 256, img.shape, dtype=np.uint8)
+    mask = np.random.rand(*img.shape[:2]) < intensity
+    for c in range(3):  # Apply to each channel
+        img[:, :, c][mask] = noise[:, :, c][mask]
+    return img
 
-def safe_float(form, key, default=0.0):
-    val = form.get(key, '').strip()
-    try:
-        return float(val) if val else default
-    except:
-        return default
+def SliceShift(img, block_height):
+    output = img.copy()
+    h, w = img.shape[:2]
+    for y in range(0, h, block_height):
+        shift = np.random.randint(-w // 10, w // 10)
+        output[y:y+block_height] = np.roll(output[y:y+block_height], shift, axis=1)
+    return output
 
 def Quantization(img, bit_depth):
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
