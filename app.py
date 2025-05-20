@@ -84,14 +84,21 @@ def index():
                 shear_x = safe_float(request.form, 'shear_x', 0.0)
                 shear_y = safe_float(request.form, 'shear_y', 0.0)
                 img = Shear(img, shear_x, shear_y)
-            elif operation == 'pixel_sort_edge':
-                img = PixelSortEdge(img)
+            # elif operation == 'pixel_sort_edge':
+            #     img = PixelSortEdge(img)
             elif operation == 'pixel_sort_gray':
                 orientation = request.form.get('orientation', 'horizontal')
                 img = PixelSortGray(img, orientation)
             elif operation == "posterize":
                 bit_depth = int(request.form.get('bit_depth', 2))
                 img = posterize_image(img, bit_depth)
+            elif operation == 'Noise':
+                noise_level = float(request.form['noise_level'])
+                img = StaticNoise(img, noise_level)
+
+            elif operation == 'SliceShift':
+                block_height = int(request.form['block_height'])
+                img = SliceShift(img, block_height)
             elif operation == 'recovery':
                 backup_path = os.path.join(OUTPUT_FOLDER, "processed_backup.png")
                 if os.path.exists(backup_path):
@@ -107,8 +114,16 @@ def index():
         # Save processed image
         if operation != 'reset' and img is not None:
             processed_path = os.path.join(OUTPUT_FOLDER, "processed.png")
+            backup_path = os.path.join(OUTPUT_FOLDER, "processed_backup.png")
+
+            # Backup the current processed image if it exists
+            if os.path.exists(processed_path):
+                os.replace(processed_path, backup_path)
+
+            # Save the new processed image
             cv2.imwrite(processed_path, img)
             processed_image = "processed.png"
+
 
         return render_template('index.html',
                             original_image=original_image,
