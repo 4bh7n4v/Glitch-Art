@@ -162,8 +162,9 @@
                     <option value="rgb_shift">RGB Shift</option>
                     <option value="rgb_rotate">RGB Rotate</option>
                     <option value="rotate_angle">Rotate Image</option>
-                    <option value="pixel_sort_edge">Pixel Sort Edge Detection</option>
                     <option value="pixel_sort_gray">Pixel Sort by Grayscale</option>
+                    <option value="Noise">Static Noise</option>
+                    <option value="SliceShift">Slice & Shift</option>
                     <option value="posterize">Posterize</option>
                     <option value="zoom">Zoom</option>
                     <option value="shear">Shear</option>
@@ -175,19 +176,33 @@
             <!-- Conditional Inputs -->
             <div id="bitDepthDiv" class="hidden">
                 <label>Bit Depth (1–8):
-                    <input type="number" name="bit_depth" min="1" max="8" value="2" />
+                    <input type="number" name="bit_depth" min="1" max="8" />
                 </label>
             </div>
 
             <div id="angleDiv" class="hidden">
                 <label>Rotation Angle (°):
-                    <input type="number" name="angle" step="0.1" value="0" />
+                    <input type="number" name="angle" step="0.1" />
                 </label>
+            </div>
+
+            <!-- For Static Noise -->
+            <div id="noiseDiv" class="hidden">
+              <label>Noise Level (0.0–1.0):
+                  <input type="number" name="noise_level" step="0.01" min="0" max="1" required />
+              </label>
+            </div>
+
+            <!-- For Slice & Shift -->
+            <div id="sliceShiftDiv" class="hidden">
+              <label>Block Height (px):
+                  <input type="number" name="block_height" min="1" required />
+              </label>
             </div>
 
             <div id="zoomDiv" class="hidden">
                 <label>Zoom Factor (0.5–3.0):
-                    <input type="number" name="zoom_factor" step="0.1" value="1" min="0.1" max="10" />
+                    <input type="number" name="zoom_factor" step="0.1" min="0.1" max="10" />
                 </label>
             </div>
 
@@ -202,10 +217,10 @@
 
             <div id="shearDiv" class="hidden">
                 <label>Shear X (-1.0 to 1.0):
-                    <input type="number" name="shear_x" step="0.01" value="0" min="-1" max="1" />
+                    <input type="number" name="shear_x" step="0.01" min="-1" max="1" />
                 </label>
                 <label>Shear Y (-1.0 to 1.0):
-                    <input type="number" name="shear_y" step="0.01" value="0" min="-1" max="1" />
+                    <input type="number" name="shear_y" step="0.01" min="-1" max="1" />
                 </label>
             </div>
 
@@ -229,6 +244,8 @@
             document.getElementById('zoomDiv').classList.add('hidden');
             document.getElementById('shearDiv').classList.add('hidden');
             document.getElementById('orientationDiv').classList.add('hidden');
+            document.getElementById('noiseDiv').classList.add('hidden');
+            document.getElementById('sliceShiftDiv').classList.add('hidden');
 
             if (op === 'quantization' || op === 'posterize') {
                 document.getElementById('bitDepthDiv').classList.remove('hidden');
@@ -240,6 +257,10 @@
                 document.getElementById('shearDiv').classList.remove('hidden');
             } else if (op === 'pixel_sort_edge' || op === 'pixel_sort_gray') {
                 document.getElementById('orientationDiv').classList.remove('hidden');
+            } else if (op === 'Noise') {
+                document.getElementById('noiseDiv').classList.remove('hidden');
+            } else if (op === 'SliceShift') {
+                document.getElementById('sliceShiftDiv').classList.remove('hidden');
             }
         });
 
